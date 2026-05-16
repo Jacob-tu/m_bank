@@ -1,0 +1,24 @@
+# Java
+target/
+*.class
+*.jar
+*.war
+.idea/
+*.iml
+
+# Frontend
+node_modules/
+dist/
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+.env.production
