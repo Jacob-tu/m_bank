@@ -1,0 +1,90 @@
+# ================================================================
+# application-prod.yml - 生产环境配置
+# 生产环境所有敏感值通过环境变量注入，禁止硬编码
+# ================================================================
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://mysql:3306/mbank?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=Asia/Shanghai&sslMode=REQUIRED}
+    username: ${SPRING_DATASOURCE_USERNAME:mbank}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      # 连接池配置
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-test-query: SELECT 1
+
+  jpa:
+    hibernate:
+      # 生产环境使用 validate，禁止自动建表
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: false
+
+server:
+  port: 8080
+  # 开启压缩
+  compression:
+    enabled: true
+    min-response-size: 1024
+    mime-types: application/json,text/html,text/plain
+  # 关闭 Server 头（隐藏服务器信息）
+  server-header: ""
+  tomcat:
+    # 最大线程数
+    threads:
+      max: 200
+      min-spare: 10
+    # 连接超时
+    connection-timeout: 20000
+
+# Spring Boot Actuator（健康检查）
+management:
+  endpoints:
+    web:
+      exposure:
+        # 生产环境只暴露 health 端点（Nginx 限制了外网访问）
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+  health:
+    db:
+      enabled: true
+    diskspace:
+      enabled: true
+
+mbank:
+  jwt:
+    # 生产环境必须通过环境变量替换，禁止使用默认值
+    secret: ${MBANK_JWT_SECRET}
+    expiration-hours: ${MBANK_JWT_EXPIRATION_HOURS:24}
+  security:
+    max-login-attempts: ${MBANK_SECURITY_MAX_LOGIN_ATTEMPTS:5}
+    lock-duration-minutes: ${MBANK_SECURITY_LOCK_DURATION_MINUTES:15}
+  sms:
+    # 生产环境关闭 Mock
+    mock-enabled: false
+    valid-code: ""
+
+# 日志配置（生产环境）
+logging:
+  level:
+    root: WARN
+    com.mbank: INFO
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

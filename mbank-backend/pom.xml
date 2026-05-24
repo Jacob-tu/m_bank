@@ -88,6 +88,12 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- Spring Boot Actuator（健康检查端点，用于 Docker 健康检查） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
         <!-- Spring Boot Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
